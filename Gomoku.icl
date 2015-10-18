@@ -20,19 +20,27 @@ instance toString Player where
   toString X = "X"
   toString O = "O"
 
+// Szukseges, hogy az (==) fuggvenyt hasznalhassuk Direction tipusu ertekekre.
+instance == Direction where
+  (==) Horizontal Horizontal = True
+  (==) Vertical Vertical = True
+  (==) LeftDiagonal LeftDiagonal = True
+  (==) RightDiagonal RightDiagonal = True
+  (==) _ _ = False
+
 Start = (and (flatten allTests), allTests)
   where
     allTests =
       [ test_nextPlayer
       , test_emptyGame
       , test_nextStep
-      /*, test_checkNInARow
+      //, test_checkNInARow
       , test_lineFilter
       , test_project
-      , test_checkBoardForN
-      , test_playGame
-      , test_areValidSteps
-      , test_startGame */
+      //, test_checkBoardForN
+      //, test_playGame
+      //, test_areValidSteps
+      //, test_startGame
       ]
 
 nextPlayer :: Player -> Player
@@ -76,9 +84,17 @@ test_checkNInARow =
   , checkNInARow 3 [3,1,~2,1,2,8,2]    == True
   , checkNInARow 4 [3,1,~2,1,2,8,2]    == False
   ]
+*/
 
 lineFilter :: Mark Direction -> (Mark -> Bool)
-lineFilter = undef
+lineFilter (player1, (x1,y1)) direction = isOnLine 
+where
+  isOnLine :: Mark -> Bool
+  isOnLine (player2, (x2,y2))
+    | direction == Horizontal = player1 == player2 && x1 == x2
+    | direction == Vertical = player1 == player2 && y1 == y2
+    | direction == LeftDiagonal = player1 == player2 && x1-y1 == x2-y2
+    | direction == RightDiagonal = player1 == player2 && x1+y1 == x2+y2
 
 test_lineFilter :: [Bool]
 test_lineFilter =
@@ -104,7 +120,12 @@ test_lineFilter =
   ]
 
 project :: Direction -> (Mark -> Int)
-project = undef
+project direction = getCoordinate
+where
+  getCoordinate :: Mark -> Int
+  getCoordinate (player, (x,y))
+    | direction == Horizontal = y
+    | otherwise = x
 
 test_project :: [Bool]
 test_project =
@@ -113,9 +134,9 @@ test_project =
   , project LeftDiagonal (X,(1,2))  == 1
   , project RightDiagonal (O,(1,2)) == 1
   ]
-
+/*
 checkBoardForN :: Int Mark Board Direction -> Maybe Player
-checkBoardForN = undef
+checkBoardForN length (player, (x,y)) board direction =
 
 test_checkBoardForN :: [Bool]
 test_checkBoardForN =
@@ -140,7 +161,9 @@ test_playGame =
   ]
 
 areValidSteps :: [Position] -> Bool
-areValidSteps = undef
+areValidSteps [] = True
+areValidSteps [x:xs] = until [x] == take (inc idx) xs
+where idx = 0
 
 test_areValidSteps :: [Bool]
 test_areValidSteps =
