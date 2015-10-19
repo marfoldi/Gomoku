@@ -39,7 +39,7 @@ Start = (and (flatten allTests), allTests)
       [ test_nextPlayer
       , test_emptyGame
       , test_nextStep
-      //, test_checkNInARow
+      , test_checkNInARow
       , test_lineFilter
       , test_project
       //, test_checkBoardForN
@@ -76,11 +76,18 @@ test_nextStep =
   , foldr (\x y -> x == (O,(1,2)) || y) False (snd (nextStep (1,2) (O,[(X,(2,1))])))
   ]
 
-
-/*
 checkNInARow :: Int [Int] -> Bool
 checkNInARow _ [] = False
-checkNInARow size [x:xs] = (isMember (x+1) xs) || (checkNInARow size xs)
+checkNInARow size list = function size 1 (sort list) == size 
+where
+  function :: Int Int [Int] -> Int
+  function _ _ [] = 0
+  function _ i [x] = i
+  function n i [x:y:z]
+    | n == i = n
+    | x+1 == y = function n i+1 [y:z]
+    | x == y = function n i [y:z]
+    | otherwise = function n 1 [y:z]
 
 test_checkNInARow :: [Bool]
 test_checkNInARow =
@@ -92,7 +99,7 @@ test_checkNInARow =
   , checkNInARow 3 [3,1,~2,1,2,8,2]    == True
   , checkNInARow 4 [3,1,~2,1,2,8,2]    == False
   ]
-*/
+
 
 lineFilter :: Mark Direction -> (Mark -> Bool)
 lineFilter (player1, (x1,y1)) direction = isOnLine 
