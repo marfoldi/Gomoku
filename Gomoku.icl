@@ -27,6 +27,11 @@ instance == Direction where
   (==) LeftDiagonal LeftDiagonal = True
   (==) RightDiagonal RightDiagonal = True
   (==) _ _ = False
+ 
+// Szukseges, hogy a (~) fuggvenyt hasznalhassuk Bool tipusu ertekekre.
+instance ~ Bool where
+  (~) True = False
+  (~) False = True
 
 Start = (and (flatten allTests), allTests)
   where
@@ -39,7 +44,7 @@ Start = (and (flatten allTests), allTests)
       , test_project
       //, test_checkBoardForN
       //, test_playGame
-      //, test_areValidSteps
+      , test_areValidSteps
       //, test_startGame
       ]
 
@@ -70,9 +75,12 @@ test_nextStep =
   [ nextStep (1,1) emptyGame == (O,[(X,(1,1))])
   , foldr (\x y -> x == (O,(1,2)) || y) False (snd (nextStep (1,2) (O,[(X,(2,1))])))
   ]
+
+
 /*
 checkNInARow :: Int [Int] -> Bool
-checkNInARow = undef
+checkNInARow _ [] = False
+checkNInARow size [x:xs] = (isMember (x+1) xs) || (checkNInARow size xs)
 
 test_checkNInARow :: [Bool]
 test_checkNInARow =
@@ -91,10 +99,11 @@ lineFilter (player1, (x1,y1)) direction = isOnLine
 where
   isOnLine :: Mark -> Bool
   isOnLine (player2, (x2,y2))
-    | direction == Horizontal = player1 == player2 && x1 == x2
-    | direction == Vertical = player1 == player2 && y1 == y2
-    | direction == LeftDiagonal = player1 == player2 && x1-y1 == x2-y2
-    | direction == RightDiagonal = player1 == player2 && x1+y1 == x2+y2
+    | player1 == nextPlayer player2 = False
+    | direction == Horizontal = x1 == x2
+    | direction == Vertical = y1 == y2
+    | direction == LeftDiagonal = x1-y1 == x2-y2
+    | direction == RightDiagonal = x1+y1 == x2+y2
 
 test_lineFilter :: [Bool]
 test_lineFilter =
@@ -159,11 +168,10 @@ test_playGame =
   , playGame 3 [(0,5),(0,0),(1,4),(1,1)]             == Nothing
   , playGame 3 [(1,0),(1,1),(2,0),(2,2),(4,0),(3,3)] == Just O
   ]
-
+*/
 areValidSteps :: [Position] -> Bool
 areValidSteps [] = True
-areValidSteps [x:xs] = until [x] == take (inc idx) xs
-where idx = 0
+areValidSteps [x:xs] = ~(isMember x xs) && areValidSteps xs
 
 test_areValidSteps :: [Bool]
 test_areValidSteps =
@@ -173,7 +181,7 @@ test_areValidSteps =
   , areValidSteps [(~1,~2),(~2,~1),(10,5),(1,1),(~2,~1)] == False
   , areValidSteps [(~1,~10),(~1,~10),(1,1),(1,1)]        == False
   ]
-
+/*
 startGame :: Int [Position] -> String
 startGame = undef
 
